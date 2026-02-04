@@ -1,7 +1,6 @@
 package tools
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -49,10 +48,7 @@ func (m *mockDB) GetUserByID(id string) *UserDetails {
 	return nil
 }
 
-func (m *mockDB) CreateUser(email string, username string, passwordHash string) (*UserDetails, error) {
-	if m.GetUserByEmail(email) != nil {
-		return nil, fmt.Errorf("user with email %s already exists", email)
-	}
+func (m *mockDB) CreateUser(email string, username string, passwordHash string) *UserDetails {
 
 	user := &UserDetails{
 		Id:           uuid.New(),
@@ -64,5 +60,5 @@ func (m *mockDB) CreateUser(email string, username string, passwordHash string) 
 	}
 
 	m.users[user.Id.String()] = user
-	return user, nil
+	return user
 }

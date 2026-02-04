@@ -12,6 +12,6 @@ func (h *Handlers) RegisterRoutes(r *chi.Mux) {
 
 	r.Route("/auth", func(router chi.Router) {
 		router.Post("/signup", h.signup)
-		// router.Post("/login", login)
+		router.Post("/login", h.login)
 	})
 }

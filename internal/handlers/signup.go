@@ -4,81 +4,67 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/AN01KU/money-manager/internal/api"
 	"github.com/AN01KU/money-manager/internal/tools"
-	"github.com/golang-jwt/jwt/v5"
-	log "github.com/sirupsen/logrus"
 )
 
 func (h *Handlers) signup(w http.ResponseWriter, r *http.Request) {
-	var params = api.SignupParams{}
+	var params api.SignupParams
 
-	var err error
-	err = json.NewDecoder(r.Body).Decode(&params)
-	if err != nil {
-		api.RequestErrorHandler(w, errors.New("Invalid request body"))
+	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
+		api.RequestErrorHandler(w, errors.New("invalid request body"))
 		return
 	}
 
-	// Validate the params
-	username := params.Username
-	password := params.Password
-	email := params.Email
-	if len(username) == 0 || len(password) == 0 || len(email) == 0 {
-		api.RequestErrorHandler(w, errors.New("Empty username or password or email"))
+	if params.Username == "" || params.Password == "" || params.Email == "" {
+		api.RequestErrorHandler(w, errors.New("username, password, and email are required"))
 		return
 	}
 
-	// check if user with email already exists or not
+	if len(params.Password) < 8 {
+		api.RequestErrorHandler(w, errors.New("password must be at least 8 characters"))
+		return
+	}
+
 	database := h.DB
-	existingUser := (*database).GetUserByEmail(email)
+	existingUser := database.GetUserByEmail(params.Email)
 	if existingUser != nil {
-		//TODO: not sure which error to throwdon
-		api.RequestErrorHandler(w, errors.New("User already exists"))
+		http.Error(w, "User with email already exists", http.StatusConflict)
 		return
 	}
 
-	// create user
-	hashedPassword, err := tools.HashPassword(password)
+	hashedPassword, err := tools.HashPassword(params.Password)
 	if err != nil {
 		api.InternalErrorHandler(w)
 		return
 	}
-	userdetails, err := (*database).CreateUser(email, username, hashedPassword)
-	if err != nil {
-		//TODO: not sure which error to throw
-		api.InternalErrorHandler(w)
+
+	user := database.CreateUser(params.Email, params.Username, hashedPassword)
+	if user == nil {
+		http.Error(w, "Failed to create user", http.StatusInternalServerError)
 		return
 	}
 
-	// generate jwt token
-	claims := jwt.MapClaims{
-		"user_id": userdetails.Id.String(),
-		"exp":     time.Now().Add(24 * time.Hour).Unix(),
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	jwtToken, err := tools.GenerateJWTToken(user.Id.String())
 	if err != nil {
 		api.InternalErrorHandler(w)
 		return
 	}
 
 	response := api.SignupResponse{
-		Token: tokenString,
+		Token: jwtToken,
 		User: api.UserResponse{
-			ID:        userdetails.Id.String(),
-			Email:     userdetails.Email,
-			CreatedAt: userdetails.CreatedAt.Format(time.RFC3339),
+			ID:        user.Id.String(),
+			Email:     user.Email,
+			CreatedAt: user.CreatedAt.Format(time.RFC3339),
 		},
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
-
-	log.Info("User registered successfully")
-
+	w.WriteHeader(http.StatusCreated)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		api.InternalErrorHandler(w)
+	}
 }

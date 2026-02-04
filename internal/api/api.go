@@ -15,6 +15,10 @@ type SignupResponse struct {
 	Token string       `json:"token"`
 	User  UserResponse `json:"user"`
 }
+type LoginParams struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
 
 type UserResponse struct {
 	ID        string `json:"id"`
@@ -32,10 +36,4 @@ func writeError(w http.ResponseWriter, message string, code int) {
 	w.WriteHeader(code)
 
 	json.NewEncoder(w).Encode(resp)
-}
-
-func WriteJSON(w http.ResponseWriter, statusCode int, data interface{}) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
-	return json.NewEncoder(w).Encode(data)
 }

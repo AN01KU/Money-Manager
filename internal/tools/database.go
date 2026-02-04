@@ -16,19 +16,19 @@ type UserDetails struct {
 }
 
 type DatabaseInterface interface {
-	CreateUser(email string, username string, passwordHash string) (*UserDetails, error)
+	CreateUser(email string, username string, passwordHash string) *UserDetails
 	GetUserByEmail(email string) *UserDetails
 	GetUserByID(id string) *UserDetails
 	SetupDatabase() error
 }
 
-func NewDatabase() (*DatabaseInterface, error) {
+func NewDatabase() (DatabaseInterface, error) {
 	var database DatabaseInterface = &mockDB{}
 
-	var err error = database.SetupDatabase()
+	err := database.SetupDatabase()
 	if err != nil {
 		return nil, err
 	}
 
-	return &database, nil
+	return database, nil
 }
