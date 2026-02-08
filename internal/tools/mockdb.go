@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -71,6 +72,7 @@ func (m *mockDB) CreateGroup(name string, createdBy uuid.UUID) *Group {
 		Name:      name,
 		CreatedBy: createdBy,
 		CreatedAt: time.Now(),
+		Members:   []uuid.UUID{createdBy},
 	}
 
 	m.groups[group.Id.String()] = group
@@ -81,5 +83,35 @@ func (m *mockDB) GetGroupByID(id string) *Group {
 	if group, exists := m.groups[id]; exists {
 		return group
 	}
+	return nil
+}
+
+func (m *mockDB) GetGroupsByUserID(userID uuid.UUID) []*Group {
+	var userGroups []*Group
+	for _, group := range m.groups {
+		for _, memberID := range group.Members {
+			if memberID == userID {
+				userGroups = append(userGroups, group)
+				break
+			}
+		}
+	}
+	return userGroups
+}
+
+func (m *mockDB) AddMemberToGroup(groupID uuid.UUID, userID uuid.UUID) error {
+	group, exists := m.groups[groupID.String()]
+	if !exists {
+		return fmt.Errorf("group not found")
+	}
+
+	// Check if user already exists in group
+	for _, id := range group.Members {
+		if id == userID {
+			return fmt.Errorf("user already in group")
+		}
+	}
+
+	group.Members = append(group.Members, userID)
 	return nil
 }

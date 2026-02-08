@@ -11,4 +11,5 @@ type Group struct {
 	Name      string
 	CreatedBy uuid.UUID
 	CreatedAt time.Time
+	Members   []uuid.UUID
 }

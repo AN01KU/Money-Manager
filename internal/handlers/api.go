@@ -20,6 +20,8 @@ func (h *Handlers) RegisterRoutes(r *chi.Mux) {
 		router.Use(middleware.Auth(h.DB))
 
 		router.Post("/groups", h.createGroups)
+		router.Get("/groups", h.getGroups)
+		router.Post("/groups/{id}/members", h.addMember)
 	})
 }
 

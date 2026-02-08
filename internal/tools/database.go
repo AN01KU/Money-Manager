@@ -11,6 +11,8 @@ type DatabaseInterface interface {
 
 	CreateGroup(name string, createdBy uuid.UUID) *Group
 	GetGroupByID(id string) *Group
+	GetGroupsByUserID(userID uuid.UUID) []*Group
+	AddMemberToGroup(groupID uuid.UUID, userID uuid.UUID) error
 }
 
 func NewDatabase() (DatabaseInterface, error) {

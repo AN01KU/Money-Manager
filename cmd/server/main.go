@@ -7,10 +7,14 @@ import (
 	"github.com/AN01KU/money-manager/internal/handlers"
 	"github.com/AN01KU/money-manager/internal/tools"
 	"github.com/go-chi/chi"
+	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 )
 
 func main() {
+	// Load .env file
+	godotenv.Load()
+
 	var err error
 	var r *chi.Mux = chi.NewRouter()
 	fmt.Println("Starting GO API Service ...")
