@@ -7,11 +7,12 @@ import (
 )
 
 type mockDB struct {
-	users map[string]*UserDetails
+	users  map[string]*User
+	groups map[string]*Group
 }
 
 func (m *mockDB) SetupDatabase() error {
-	m.users = map[string]*UserDetails{
+	m.users = map[string]*User{
 		"550e8400-e29b-41d4-a716-446655440001": {
 			Id:           uuid.MustParse("550e8400-e29b-41d4-a716-446655440001"),
 			Email:        "john@example.com",
@@ -29,10 +30,11 @@ func (m *mockDB) SetupDatabase() error {
 			AuthToken:    "token-jane-67890",
 		},
 	}
+	m.groups = make(map[string]*Group)
 	return nil
 }
 
-func (m *mockDB) GetUserByEmail(email string) *UserDetails {
+func (m *mockDB) GetUserByEmail(email string) *User {
 	for _, user := range m.users {
 		if user.Email == email {
 			return user
@@ -41,16 +43,16 @@ func (m *mockDB) GetUserByEmail(email string) *UserDetails {
 	return nil
 }
 
-func (m *mockDB) GetUserByID(id string) *UserDetails {
+func (m *mockDB) GetUserByID(id string) *User {
 	if user, exists := m.users[id]; exists {
 		return user
 	}
 	return nil
 }
 
-func (m *mockDB) CreateUser(email string, username string, passwordHash string) *UserDetails {
+func (m *mockDB) CreateUser(email string, username string, passwordHash string) *User {
 
-	user := &UserDetails{
+	user := &User{
 		Id:           uuid.New(),
 		Email:        email,
 		Username:     username,
@@ -61,4 +63,25 @@ func (m *mockDB) CreateUser(email string, username string, passwordHash string) 
 
 	m.users[user.Id.String()] = user
 	return user
+}
+
+func (m *mockDB) CreateGroup(userID string, name string) *Group {
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		return nil
+	}
+
+	if m.GetUserByID(userID) == nil {
+		return nil
+	}
+
+	group := &Group{
+		ID:        uuid.New(),
+		Name:      name,
+		CreatedBy: userUUID,
+		CreatedAt: time.Now(),
+	}
+
+	m.groups[group.ID.String()] = group
+	return group
 }

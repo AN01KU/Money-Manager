@@ -1,25 +1,13 @@
 package tools
 
-import (
-	"time"
-
-	"github.com/google/uuid"
-)
-
-type UserDetails struct {
-	Id           uuid.UUID
-	Email        string
-	PasswordHash string
-	CreatedAt    time.Time
-	Username     string
-	AuthToken    string
-}
-
 type DatabaseInterface interface {
-	CreateUser(email string, username string, passwordHash string) *UserDetails
-	GetUserByEmail(email string) *UserDetails
-	GetUserByID(id string) *UserDetails
 	SetupDatabase() error
+
+	CreateUser(email string, username string, passwordHash string) *User
+	GetUserByEmail(email string) *User
+	GetUserByID(id string) *User
+
+	CreateGroup(userID string, name string) *Group
 }
 
 func NewDatabase() (DatabaseInterface, error) {

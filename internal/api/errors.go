@@ -20,4 +20,8 @@ var (
 	InternalErrorHandler = func(w http.ResponseWriter) {
 		writeError(w, "An Unexpected Error Occurred.", http.StatusInternalServerError)
 	}
+
+	UnauthorizedErrorHandler = func(w http.ResponseWriter) {
+		writeError(w, "Missing or invalid auth token", http.StatusUnauthorized)
+	}
 )
