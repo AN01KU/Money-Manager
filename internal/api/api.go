@@ -30,6 +30,13 @@ type CreateGroupParams struct {
 	Name string `json:"name"`
 }
 
+type GroupResponse struct {
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	CreatedBy string `json:"created_by"`
+	CreatedAt string `json:"created_at"`
+}
+
 // type GroupResponse struct{ ID, Name, CreatedBy, CreatedAt string }
 
 func writeError(w http.ResponseWriter, message string, code int) {

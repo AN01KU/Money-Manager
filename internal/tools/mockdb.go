@@ -65,23 +65,21 @@ func (m *mockDB) CreateUser(email string, username string, passwordHash string) 
 	return user
 }
 
-func (m *mockDB) CreateGroup(userID string, name string) *Group {
-	userUUID, err := uuid.Parse(userID)
-	if err != nil {
-		return nil
-	}
-
-	if m.GetUserByID(userID) == nil {
-		return nil
-	}
-
+func (m *mockDB) CreateGroup(name string, createdBy uuid.UUID) *Group {
 	group := &Group{
-		ID:        uuid.New(),
+		Id:        uuid.New(),
 		Name:      name,
-		CreatedBy: userUUID,
+		CreatedBy: createdBy,
 		CreatedAt: time.Now(),
 	}
 
-	m.groups[group.ID.String()] = group
+	m.groups[group.Id.String()] = group
 	return group
+}
+
+func (m *mockDB) GetGroupByID(id string) *Group {
+	if group, exists := m.groups[id]; exists {
+		return group
+	}
+	return nil
 }

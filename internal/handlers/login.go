@@ -53,5 +53,6 @@ func (h *Handlers) login(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		api.InternalErrorHandler(w)
+		return
 	}
 }

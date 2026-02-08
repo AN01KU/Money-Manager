@@ -7,7 +7,7 @@ import (
 )
 
 type Group struct {
-	ID        uuid.UUID
+	Id        uuid.UUID
 	Name      string
 	CreatedBy uuid.UUID
 	CreatedAt time.Time

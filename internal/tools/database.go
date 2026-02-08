@@ -1,5 +1,7 @@
 package tools
 
+import "github.com/google/uuid"
+
 type DatabaseInterface interface {
 	SetupDatabase() error
 
@@ -7,7 +9,8 @@ type DatabaseInterface interface {
 	GetUserByEmail(email string) *User
 	GetUserByID(id string) *User
 
-	CreateGroup(userID string, name string) *Group
+	CreateGroup(name string, createdBy uuid.UUID) *Group
+	GetGroupByID(id string) *Group
 }
 
 func NewDatabase() (DatabaseInterface, error) {
